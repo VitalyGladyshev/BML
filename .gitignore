@@ -1,0 +1,4 @@
+/venv-py-bml
+/.idea
+/coursework/.ipynb_checkpoints
+*.xml
