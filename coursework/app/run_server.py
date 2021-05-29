@@ -31,7 +31,7 @@ print(model)
 
 @app.route("/", methods=["GET"])
 def general():
-    return """Welcome to fraudulent prediction process. Please use 'http://<address>/predict' to POST"""
+    return """Welcome to credit default prediction process. Please use 'http://<address>/predict' to POST"""
 
 
 @app.route("/predict", methods=["POST"])
