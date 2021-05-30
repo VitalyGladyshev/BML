@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
-model_path = "/home/vitaly/YandexDisk/python/BML/coursework/models/model_cr_gbc.dill"
-# # "/app/app/models/model_cr_gbc.dill"
+model_path = "/app/app/models/model_cr_gbc.dill"
+# "/home/vitaly/YandexDisk/python/BML/coursework/models/model_cr_gbc.dill"
 with open(model_path, 'rb') as f:
     model = dill.load(f)
 # print(model)
