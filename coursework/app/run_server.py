@@ -5,6 +5,7 @@
 #   python simple_request.py
 
 # import the necessary packages
+import numpy as np
 import pandas as pd
 import os
 import flask
@@ -23,10 +24,14 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
-model_path = "/app/app/models/model_cr_gbc.dill"
+model_path = "/home/vitaly/YandexDisk/python/BML/coursework/models/model_cr_gbc.dill"
+# # "/app/app/models/model_cr_gbc.dill"
 with open(model_path, 'rb') as f:
     model = dill.load(f)
-print(model)
+# print(model)
+
+feat_eng_columns = ["Maximum Open Credit", "Annual Income", "Current Loan Amount",
+                    "Current Credit Balance", "Monthly Debt", "Credit Score"]
 
 
 @app.route("/", methods=["GET"])
@@ -42,22 +47,15 @@ def predict():
     dt = strftime("[%Y-%b-%d %H:%M:%S]")
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
-
-        description, company_profile, benefits = "", "", ""
         request_json = flask.request.get_json()
-        if request_json["description"]:
-            description = request_json['description']
 
-        if request_json["company_profile"]:
-            company_profile = request_json['company_profile']
+        # for col, val in request_json.items():
+        #     print(f"col: {col} val: {val}")  # pd.DataFrame(request_json.items(), columns=total_columns_list))
+        # print(pd.DataFrame([request_json]))
 
-        if request_json["benefits"]:
-            benefits = request_json['benefits']
-        logger.info(f'{dt} Data: description={description}, company_profile={company_profile}, benefits={benefits}')
+        logger.info(f'{dt} Data: {request_json}')
         try:
-            predictions = model.predict_proba(pd.DataFrame({"description": [description],
-                                                            "company_profile": [company_profile],
-                                                            "benefits": [benefits]}))
+            predictions = model.predict_proba(pd.DataFrame([request_json]))
         except AttributeError as e:
             logger.warning(f'{dt} Exception: {str(e)}')
             data['predictions'] = str(e)

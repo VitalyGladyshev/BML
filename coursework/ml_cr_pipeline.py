@@ -54,24 +54,67 @@ class NumberSelector(BaseEstimator, TransformerMixin):
         return x_inc[[self.key]]
 
 
-class OHEEncoder(BaseEstimator, TransformerMixin):
+class CatEncoder(BaseEstimator, TransformerMixin):
     def __init__(self, key):
         self.key = key
-        self.columns = []
 
-    def fit(self, x_inc, y=None):
-        df = x_inc.copy()
-        self.columns = [col for col in pd.get_dummies(df, prefix=self.key).columns]
+    def fit(self, x, y=None):
         return self
 
-    def transform(self, x_inc):
-        df = x_inc.copy()
-        df = pd.get_dummies(df, prefix=self.key)
-        test_columns = [col for col in df.columns]
-        for col_ in test_columns:
-            if col_ not in self.columns:
-                df[col_] = 0
-        return df[self.columns]
+    def transform(self, x):
+        column = x.copy()
+        if self.key == "Years in current job":
+            map_jb = {
+                '< 1 year': 0.5,
+                '1 year': 1,
+                '2 years': 2,
+                '3 years': 3,
+                '4 years': 4,
+                '5 years': 5,
+                '6 years': 6,
+                '7 years': 7,
+                '8 years': 8,
+                '9 years': 9,
+                '10+ years': 10
+            }
+            column = column.map(map_jb)
+        elif self.key == "Home Ownership":
+            map_ho = {
+                'Have Mortgage': 2,
+                'Home Mortgage': 2,
+                'Own Home': 3,
+                'Rent': 1
+            }
+            column = column.map(map_ho)
+        elif self.key == "Term":
+            map_t = {
+                'Short Term': 0,
+                'Long Term': 1
+            }
+            column = column.map(map_t)
+            column = column.astype(np.int64)
+        elif self.key == "Purpose":
+            map_p = {
+                'business loan': 1,
+                'buy a car': 2,
+                'buy house': 3,
+                'debt consolidation': 4,
+                'educational expenses': 5,
+                'home improvements': 6,
+                'major purchase': 7,
+                'medical bills': 8,
+                'moving': 9,
+                'other': 10,
+                'renewable energy': 11,
+                'small business': 12,
+                'take a trip': 13,
+                'vacation': 14,
+                'wedding': 15
+            }
+            column = column.map(map_p)
+        column.replace([np.inf, -np.inf], np.nan, inplace=True)
+        column[column.isnull()] = 0
+        return pd.DataFrame(column)
 
 
 class FeatureCreator(BaseEstimator, TransformerMixin):
@@ -150,7 +193,7 @@ for feat_eng_col in feat_eng_columns:
 
 for cat_col in cat_list:
     cat_transformer = Pipeline([('selector', ColumnSelector(key=cat_col)),
-                                ('ohe', OHEEncoder(key=cat_col))
+                                ('ohe', CatEncoder(key=cat_col))
                                 ])
     final_transformers.append((cat_col, cat_transformer))
 
